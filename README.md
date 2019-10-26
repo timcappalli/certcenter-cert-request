@@ -31,7 +31,7 @@ cert_validity_period = 365
 
 Required Arguments:
 * `--fqdn / -f`: The FQDN from the CN
-* `--c / -c`: the filename of ot he CSR
+* `--c / -c`: the filename of the CSR
 
 Optional Arguments:
 * `--days / -d`: override validity from config file (1-365)
