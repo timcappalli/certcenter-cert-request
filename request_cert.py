@@ -4,8 +4,8 @@
 # Name: cert_request.py
 # Usage: request_cert.py -f/--fqdn <subject-fqdn> -c/--csr <csr-filename> [-v/--validity <days>]
 #
-# Version: 2019.02
-# Date: 2019-12-30
+# Version: 2019.03
+# Date: 2019-12-31
 #
 # Author: @timcappalli
 #
@@ -35,7 +35,7 @@
 #
 #------------------------------------------------------------------------------
 
-__version__ = "2019.02"
+__version__ = "2019.03"
 
 import json
 import requests
@@ -63,6 +63,9 @@ CC_SCOPE = 'order'
 
 def token_handling():
 
+    access_token = None
+    token_valid = False
+
     if os.path.isfile("token.json"):
 
         with open('token.json') as f:
@@ -73,6 +76,7 @@ def token_handling():
         # check cached token validity
         if token_file['expires_at'] > current_time_plus_thirty:
             access_token = token_file['access_token']
+            token_valid = True
             print("\tUsing cached access token.")
 
             if DEBUG:
@@ -80,10 +84,14 @@ def token_handling():
 
             return access_token
 
-    else:
+        else:
+            token_valid = False
+            access_token = None
+
+    if not token_valid or access_token is None:
         # check config
         if not CC_CLIENT_ID or not CC_CLIENT_SECRET:
-            print("ERROR: client_id or client_secret not defined in config file.")
+            print("[ERROR] client_id or client_secret not defined in config file.")
             exit(1)
         else:
             # get new token
@@ -114,7 +122,7 @@ def token_handling():
 
             except Exception as e:
                 if r.status_code == 400:
-                    print("ERROR: Check config.py (client_id, client_secret)")
+                    print("[ERROR] Check config (client_id, client_secret)")
                     print("\tRaw Error Text: {}".format(e))
                     exit(1)
                 else:
@@ -187,10 +195,8 @@ def cc_get_dns_data(cc_access_token, csr):
         txt_value = json['DNSAuthDetails']['DNSValue']
         txt_example = json['DNSAuthDetails']['Example']
 
-        #print("\n\t{}".format(txt_example))
-
         if DEBUG:
-            print(f"\tDEBUG: {json}\n")
+            print(f"\t[DEBUG] {json}\n")
 
         return txt_value
 
@@ -372,15 +378,15 @@ if __name__ == '__main__':
     input("\nPress Enter after DNS record creation...\n")
 
     # verify DNS propagation
-    print("\n[5] Attempting to verify DNS record...")
+    print("\n[4] Attempting to verify DNS record...")
     txt_match = verify_dns_record(cert_fqdn, txt_value)
 
     # request certificate
-    print("\n[6] Requesting certificate from CertCenter...")
+    print("\n[5] Requesting certificate from CertCenter...")
     cert_output = cc_request_cert(token, csr, validity_period)
 
     # dump signed certificate to file
-    print("\n[7] Exporting signed certificate with chain...")
+    print("\n[6] Exporting signed certificate with chain...")
     dump_cert(cert_fqdn, cert_output.get('signed_cert'), cert_output.get('intermediate'))
 
     print("\n\nPROCESS COMPLETE!\n\n")

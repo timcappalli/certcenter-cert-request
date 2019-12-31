@@ -44,10 +44,13 @@ Optional Arguments:
 `request_cert.py -f host.domain.com -c host.csr`
 
 ## Change Log
-### 2019.02 (2019-12-30)
+#### 2019.03 (2019-12-31)
+* Fixed token caching
+
+#### 2019.02 (2019-12-30)
 * Fixed an issue where the root certificate and extra blank lines were included in the chained output due to an undocumented change by DigiCert
 
-### 2019.01 (2019-10-26)
+#### 2019.01 (2019-10-26)
 * Initial release
 
 ## License and Other Information
