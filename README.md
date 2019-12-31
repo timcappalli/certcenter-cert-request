@@ -1,6 +1,6 @@
 # CertCenter Cert Request
 
-This is a basic script that helps to automate most parts of a certificate request from AlwaysOnSSL (DigiCert) via CertCenter. 
+This is a basic script that helps to automate most parts of a certificate request from the Encryption Everywhere service (DigiCert) via CertCenter. 
 
 This script requires manual DNS record creation. If you're using AWS Route 53, see [certcenter-r53-cert-request](https://github.com/timcappalli/certcenter-r53-cert-request) for a completely automated solution.
 
@@ -37,6 +37,20 @@ Optional Arguments:
 * `--days / -d`: override validity from config file (1-365)
 * `--verbose / -v`: verbose logging 
 
-### Example
+### Examples
 
 `request_cert.py --fqdn=host.domain.com --csr=host.csr `
+
+`request_cert.py -f host.domain.com -c host.csr`
+
+## Change Log
+### 2019.02 (2019-12-30)
+* Fixed an issue where the root certificate and extra blank lines were included in the chained output due to an undocumented change by DigiCert
+
+### 2019.01 (2019-10-26)
+* Initial release
+
+## License and Other Information
+This repo is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+Author: @timcappalli

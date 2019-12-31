@@ -4,8 +4,8 @@
 # Name: cert_request.py
 # Usage: request_cert.py -f/--fqdn <subject-fqdn> -c/--csr <csr-filename> [-v/--validity <days>]
 #
-# Version: 2019.01
-# Date: 2019-10-26
+# Version: 2019.02
+# Date: 2019-12-30
 #
 # Author: @timcappalli
 #
@@ -35,7 +35,7 @@
 #
 #------------------------------------------------------------------------------
 
-__version__ = "2019.01"
+__version__ = "2019.02"
 
 import json
 import requests
@@ -44,6 +44,7 @@ import time
 import os
 from configparser import ConfigParser
 import argparse
+import pem
 
 # configuration file parameters
 params = os.path.join(os.path.dirname(__file__), "config")
@@ -299,7 +300,7 @@ def dump_cert(cert_fqdn, signed_cert, intermediate):
     """
     try:
         file = open("{}_cert.pem".format(cert_fqdn), "w")
-        file.write(signed_cert)
+        file.write(signed_cert.strip())
         file.close()
 
         print("\n\tCertificate exported: {}_cert.pem".format(cert_fqdn))
@@ -308,11 +309,13 @@ def dump_cert(cert_fqdn, signed_cert, intermediate):
         print("\n\t{}".format(e))
         exit(1)
 
+    intermediate_pem = pem.parse(intermediate.encode())
+    intermediate_clean = str(intermediate_pem[0]).strip()
+
     try:
         file = open("{}_cert-chained.pem".format(cert_fqdn), "w")
         file.write(signed_cert)
-        file.write("\n")
-        file.write(intermediate)
+        file.write(intermediate_clean)
         file.close()
 
         print("\n\tChained certificate exported: {}_cert-chained.pem".format(cert_fqdn))
@@ -378,7 +381,7 @@ if __name__ == '__main__':
 
     # dump signed certificate to file
     print("\n[7] Exporting signed certificate with chain...")
-    dump_cert(cert_fqdn, cert_output['signed_cert'], cert_output['intermediate'])
+    dump_cert(cert_fqdn, cert_output.get('signed_cert'), cert_output.get('intermediate'))
 
     print("\n\nPROCESS COMPLETE!\n\n")
     exit(0)
